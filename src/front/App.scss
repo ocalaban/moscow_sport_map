@@ -1,0 +1,53 @@
+.mapContainer {
+    float: left;
+    width: 1000px;
+    height: 800px;
+}
+
+.panel {
+    float: left;
+    width: 500px;
+    margin: 10px 0 0 20px;
+    
+    .title {
+        font-size: 150%;
+    }
+
+    .inputContainer {
+        margin: 10px 0 0 0;
+
+        .inputWrapper {
+            padding-top: 5px;
+        }
+    }
+
+    .info {
+        margin-top: 20px;
+    }
+}
+
+.popup {
+    max-height: 500px;
+    overflow-y: auto;
+
+    .fieldCont {
+        padding: 5px;
+
+        .label {
+            font-weight: bold;
+        }
+    }
+
+    .section {
+        margin-left: 20px;
+        font-size: 80%;
+
+        .preborder {
+            border-top: 1px solid wheat;
+        }
+
+        .sports {
+            padding: 5px;
+        }
+    }
+}

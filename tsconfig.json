@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "sourceMap": true,
+    "outDir": "dest",
+    "rootDir": "src",
+    "target": "es6",
+    "lib": ["es6","dom"],
+    "jsx": "react",
+    "downlevelIteration": true,
+    "resolveJsonModule": true,
+    "baseUrl": ".",
+    "paths": {
+      "*": [
+        "node_modules/*"
+      ]
+    },
+    "plugins": [{ "name": "typescript-plugin-css-modules" }],    
+    "esModuleInterop": true
+  },
+  "exclude": ["node_modules", "src/back", "src/front/test"]
+}
