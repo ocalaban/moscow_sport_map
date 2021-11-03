@@ -228,7 +228,7 @@ class App extends React.Component<IAppProps, IAppState> {
                         </div>
                     </div>
                     <div className="inputContainer">
-                        <button onClick={() => { this.emitter.emit('clearCircles'); }}>Очистить окружности доступа</button>
+                        <button onClick={() => { this.emitter.emit('clearCircles'); }}>Очистить круги доступности</button>
                     </div>
                     <div className="inputContainer">
                         <button onClick={() => {
