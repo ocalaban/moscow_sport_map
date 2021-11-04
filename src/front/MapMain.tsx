@@ -132,6 +132,18 @@ export default class MapMain extends React.Component<IMapMainProps, IMapMainStat
                                 let count = 0;
                                 let wasIn = false;
 
+                                const startTime = Date.now();
+                                const arr = []
+                                this.props.objs.forEach((obj, pos) => {
+                                    arr.push({distance: this.map.distance(event.latlng, {lat: obj.lat, lng: obj.lng}), pos})
+                                })
+                                arr.sort(function (a, b) {
+                                    return a.distance - b.distance
+                                })
+                                console.log(this.props.objs[arr[0].pos])
+                                const endTime = (Date.now() - startTime) / 1000
+                                console.log(endTime)
+
                                 this.circles.forEach((circle) => {
                                     let dist = this.map.distance(event.latlng, circle._latlng);
                                     let isIn = dist <= circle.options.radius;
