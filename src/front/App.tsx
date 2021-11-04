@@ -237,6 +237,9 @@ class App extends React.Component<IAppProps, IAppState> {
                             });
                         }}>{this.state.isPopulationLayer ? 'Убрать' : 'Показать'} плотность населения</button>
                     </div>
+                    {/* <div className="inputContainer">
+                        <button onClick={() => {}}>Ближайшие 10 объектов</button>
+                    </div> */}
                     <div className="info">
                         <div style={{ width: 200, float: 'left' }}>
                             <div>Диапазоны площади объектов, кв.м.</div>
