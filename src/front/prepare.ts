@@ -42,4 +42,4 @@ let objs = objs_src.map(arr => {
     return res as IObj;
 });
 
-fs.writeFileSync(__dirname + '/mock/data.json', JSON.stringify(objs));
+fs.writeFileSync(__dirname + '/mock/sport_objects.json', JSON.stringify(objs));

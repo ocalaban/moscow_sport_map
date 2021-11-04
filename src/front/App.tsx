@@ -246,13 +246,13 @@ class App extends React.Component<IAppProps, IAppState> {
 
                                 let rgbStr = getInterjacentColorStr(i, 15, rgb1, rgb2);
 
-                                return (<>
-                                    <div key={i}>
+                                return (<React.Fragment key={i}>
+                                    <div>
                                         <div style={{ width: 30, height: 20, backgroundColor: rgbStr, float: 'left' }}></div>
                                         <div style={{ float: 'left', paddingLeft: 5 }}>{2 ** i - 1}{(i < 14) ? (<>&ndash;{2 ** (i + 1) - 1}</>) : <>+</>}</div>
                                     </div>
                                     <div style={{ clear: 'both' }}></div>
-                                </>);
+                                </React.Fragment> );
                             })}
                         </div>
                         <div style={{ width: 200, float: 'left' }}>
@@ -263,13 +263,13 @@ class App extends React.Component<IAppProps, IAppState> {
 
                                 let rgbStr = getInterjacentColorStr(i, 9, rgb1, rgb2);
                                 return (
-                                    <>
-                                        <div key={i}>
+                                    <React.Fragment key={i}>
+                                        <div>
                                             <div style={{ width: 30, height: 20, backgroundColor: rgbStr, float: 'left' }}></div>
                                             <div style={{ float: 'left', paddingLeft: 5 }}>{i * 10}{(i < 9) ? (<>&ndash;{(i + 1) * 10}</>) : <>+</>}</div>
                                         </div>
                                         <div style={{ clear: 'both' }}></div>
-                                    </>
+                                    </React.Fragment>
                                 );
                             })}
                         </div>

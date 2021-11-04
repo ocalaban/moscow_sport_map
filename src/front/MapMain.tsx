@@ -36,6 +36,8 @@ export default class MapMain extends React.Component<IMapMainProps, IMapMainStat
     circles = [];
     polys = [];
 
+    prevProps;
+
     constructor(props) {
         super(props);
 
@@ -57,6 +59,9 @@ export default class MapMain extends React.Component<IMapMainProps, IMapMainStat
 
         let res = `
             <div class="popup" title="id: ${obj.id}">
+                <!-- div class="fieldCont">
+                    ${obj.lat} - ${obj.lng}
+                </div -->
                 <div class="fieldCont">
                     <div class="label">Наименование спортивного объекта</div>
                     <div class="value">${obj.name}</div>
@@ -122,10 +127,20 @@ export default class MapMain extends React.Component<IMapMainProps, IMapMainStat
                 ref={(node) => {
                     if (node) {
                         if (!this.map) {
+
                             this.map = DG.map('map', {
                                 'center': [55.64, 37.80],
                                 'zoom': 13
                             });
+
+                            // let l1 = {lat: 55.640000, lng: 37.800000};
+                            // let l2 = {lat: 55.6401, lng: 37.8001};
+                            
+                            // DG.marker(l1).addTo(this.map);
+                            // DG.marker(l2).addTo(this.map);
+
+                            // console.log(this.map.distance(l1, l2));
+                            // return;
 
                             this.map.on('click', (event) => {
                                 let sum = 0;
@@ -145,7 +160,7 @@ export default class MapMain extends React.Component<IMapMainProps, IMapMainStat
                                 });
 
                                 if (wasIn) {
-                                    let popup = DG.popup()
+                                    DG.popup()
                                         .setLatLng(event.latlng)
                                         .setContent(`<div><div>Объектов в доступе: ${count}</div><div>Общая площадь, кв.м.: ${sum}</div></div>`)
                                         .openOn(this.map);
@@ -153,74 +168,82 @@ export default class MapMain extends React.Component<IMapMainProps, IMapMainStat
                             })
                         }
 
-                        if (this.cluster) {
-                            this.map.removeLayer(this.cluster);
-                        }
-
-                        let cluster = DG.markerClusterGroup(clusterParams);
-
-                        this.props.objs.forEach(obj => {
-                            let popupContent = this.formPopupInnerHTML(obj);
-
-                            let marker = DG.marker(obj);
-                            marker.bindPopup(popupContent);
-
-                            cluster.addLayer(marker);
-                            let that = this;
-
-                            let radii = [5000, 3000, 1000, 500];
-                            let radius = radii[obj.affinityId - 1];
-
-                            let step;
-
-                            if (obj.square && Math.log10(obj.square) > 1) {
-                                step = Math.floor(Math.log(obj.square));
-                            } else {
-                                step = 1;
+                        if (this.prevProps?.objs !== this.props.objs) {
+                            if (this.cluster) {
+                                this.map.removeLayer(this.cluster);
                             }
 
-                            const stepCount = 14;
+                            let cluster = DG.markerClusterGroup(clusterParams);
 
-                            const rgb1 = [255, 0, 0, 1] as IRGBA;
-                            const rgb2 = [0, 255, 0, 1] as IRGBA;
+                            this.props.objs.forEach(obj => {
+                                let popupContent = this.formPopupInnerHTML(obj);
 
-                            let rgbStr = getInterjacentColorStr(step, stepCount, rgb1, rgb2);
-                            marker.on('click', function () {
-                                let circle = DG.circle([obj.lat, obj.lng], { radius, color: rgbStr }).addTo(that.map);
-                                circle.square = obj.square;
+                                let marker = DG.marker(obj);
+                                marker.bindPopup(popupContent);
 
-                                that.circles.push(circle);
-                            });
-                        });
+                                cluster.addLayer(marker);
+                                let that = this;
 
-                        this.map.addLayer(cluster);
-                        this.cluster = cluster;
+                                let radii = [5000, 3000, 1000, 500];
+                                let radius = radii[obj.affinityId - 1];
 
-                        this.polys.forEach((poly) => {
-                            poly.removeFrom(this.map);
-                        });
+                                let step;
 
-                        if (this.props.isPopulationLayer) {
-                            this.props.districts.forEach(district => {
-                                const limit = 20;
-                                
-                                let dense = Math.floor(district[3] / district[2] / 10);
-                                if (dense > limit) {
-                                    dense = limit;
+                                if (obj.square && Math.log10(obj.square) > 1) {
+                                    step = Math.floor(Math.log(obj.square));
+                                } else {
+                                    step = 1;
                                 }
 
-                                const rgb1 = [0, 0, 255, 1] as IRGBA;
-                                const rgb2 = [255, 0, 0, 1] as IRGBA;
-    
-                                let rgbStr = getInterjacentColorStr(dense, limit, rgb1, rgb2);
-                                
-                                let poly = DG.polygon(district[5][0], { color: rgbStr }).addTo(this.map);
-                                this.polys.push(poly);
+                                const stepCount = 14;
+
+                                const rgb1 = [255, 0, 0, 1] as IRGBA;
+                                const rgb2 = [0, 255, 0, 1] as IRGBA;
+
+                                let rgbStr = getInterjacentColorStr(step, stepCount, rgb1, rgb2);
+                                marker.on('click', function () {
+                                    let circle = DG.circle([obj.lat, obj.lng], { radius, color: rgbStr }).addTo(that.map);
+                                    circle.square = obj.square;
+
+                                    that.circles.push(circle);
+                                });
                             });
+
+                            this.map.addLayer(cluster);
+                            this.cluster = cluster;
+                        }
+
+                        if (this.prevProps?.isPopulationLayer !== this.props.isPopulationLayer) {
+                            this.polys.forEach((poly) => {
+                                poly.removeFrom(this.map);
+                            });
+
+                            if (this.props.isPopulationLayer) {
+                                this.props.districts.forEach(district => {
+                                    const limit = 20;
+
+                                    let dense = Math.floor(district[3] / district[2] / 10);
+                                    if (dense > limit) {
+                                        dense = limit;
+                                    }
+
+                                    const rgb1 = [0, 0, 255, 1] as IRGBA;
+                                    const rgb2 = [255, 0, 0, 1] as IRGBA;
+
+                                    let rgbStr = getInterjacentColorStr(dense, limit, rgb1, rgb2);
+
+                                    let poly = DG.polygon(district[5][0], { color: rgbStr }).addTo(this.map);
+                                    this.polys.push(poly);
+                                });
+                            }
                         }
                     }
                 }}>
             </div>
         );
+    }
+
+    componentDidUpdate(prevProps, prevState) {
+        this.prevProps = prevProps;
     }
 }
