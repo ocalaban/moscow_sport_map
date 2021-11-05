@@ -27,7 +27,7 @@ const clusterParams = {
   disableClusteringAtZoom: 18,
 };
 
-const GRID_SIZE = 50; 
+const GRID_SIZE = 10; 
 
 export default class MapMain extends React.Component<
   IMapMainProps,
@@ -192,6 +192,11 @@ export default class MapMain extends React.Component<
   }
 
   generatePoints = () => {
+    if (this.state.pointsMatrix.length > 0) {
+      this.setState({
+          pointsMatrix: [],
+      });
+    }
     let lng = 55.993004814153956;
     let lat = 36.84402465820313;
     for (let i = 0; i < GRID_SIZE; i++) {
@@ -208,12 +213,12 @@ export default class MapMain extends React.Component<
       this.functionXLSX(this.state.pointsMatrix);
     }
   }
-  componentDidMount() {
-    this.generatePoints();
-  }
 
   render() {
-    return (
+    return (<>
+      <div className="inputContainer">
+        <button onClick={this.generatePoints}>Ближайшие 10 объектов</button>
+      </div> 
       <div
         id="map"
         style={{ width: "100%", height: "100%" }}
@@ -327,6 +332,7 @@ export default class MapMain extends React.Component<
           }
         }}
       ></div>
+      </>
     );
   }
 }
