@@ -20,4 +20,4 @@ app.use(express.static(path.resolve(__dirname + '/../front'))); // resolve in ne
 
 // app.use('/domurl', express.static(__dirname + '/node_modules/domurl/'));
 
-httpServer.listen(8330);
+httpServer.listen(8332);

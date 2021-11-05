@@ -27,7 +27,7 @@ let objs = objs_src.map(arr => {
             let res = parr[1] === rarr[0];
             return res;
         });
-        
+
         roles.forEach(rarr => {
             (res as any).roles.push(rarr[1]);
         });
