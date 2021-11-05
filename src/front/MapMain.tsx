@@ -19,7 +19,7 @@ interface IMapMainProps {
 }
 
 interface IMapMainState {
-
+    flagBtn: boolean
 }
 
 const clusterParams = {
@@ -42,7 +42,7 @@ export default class MapMain extends React.Component<IMapMainProps, IMapMainStat
         super(props);
 
         this.state = {
-
+            flagBtn: false,
         }
 
         props.emitter.on('clearCircles', () => {
@@ -119,8 +119,57 @@ export default class MapMain extends React.Component<IMapMainProps, IMapMainStat
         return res;
     }
 
+    nearestObj(event: any) {
+        // const popups = DG.featureGroup();
+        this.props.objs.forEach((obj, pos) => {
+
+            const distance = this.map.distance(event.latlng, {
+              lat: obj.lat,
+              lng: obj.lng,
+            })
+
+            let radii = [5000, 3000, 1000, 500];
+            let radius = radii[obj.affinityId - 1];
+
+            if (distance <= radius) {
+
+            // let popupContent = this.formPopupInnerHTML(obj);
+
+            // DG.popup()
+            //     .setLatLng([obj.lat, obj.lng])
+            //     .setContent(popupContent)
+            //     .addTo(popups);
+
+
+                let step;
+          
+                if (obj.square && Math.log10(obj.square) > 1) {
+                    step = Math.floor(Math.log(obj.square));
+                } else {
+                    step = 1;
+                }
+
+                const stepCount = 14;
+
+                const rgb1 = [255, 0, 0, 1] as IRGBA;
+                const rgb2 = [0, 255, 0, 1] as IRGBA;
+
+                let rgbStr = getInterjacentColorStr(step, stepCount, rgb1, rgb2);
+                let circle = DG.circle([obj.lat, obj.lng], { radius, color: rgbStr }).addTo(this.map);
+                circle.square = obj.square;
+                this.circles.push(circle);      
+                
+        }
+        });
+
+        // popups.addTo(this.map);
+  
+      }
+
     render() {
         return (
+            <>
+            <button onClick={()=>this.setState({flagBtn: true})}>Спец режим</button>
             <div
                 id="map"
                 style={{ width: '100%', height: '100%' }}
@@ -141,11 +190,20 @@ export default class MapMain extends React.Component<IMapMainProps, IMapMainStat
 
                             // console.log(this.map.distance(l1, l2));
                             // return;
+                            
 
                             this.map.on('click', (event) => {
+
                                 let sum = 0;
                                 let count = 0;
                                 let wasIn = false;
+
+                                if (this.state.flagBtn === true) {
+                                 this.nearestObj(event);
+                                }
+
+
+                                DG.marker([event.latlng.lat, event.latlng.lng]).addTo(this.map)
 
                                 this.circles.forEach((circle) => {
                                     let dist = this.map.distance(event.latlng, circle._latlng);
@@ -158,6 +216,7 @@ export default class MapMain extends React.Component<IMapMainProps, IMapMainStat
                                     }
 
                                 });
+
 
                                 if (wasIn) {
                                     DG.popup()
@@ -240,6 +299,7 @@ export default class MapMain extends React.Component<IMapMainProps, IMapMainStat
                     }
                 }}>
             </div>
+            </>
         );
     }
 
