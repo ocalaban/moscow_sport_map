@@ -1,3 +1,21 @@
+export const spr_filter =
+{
+    "1": "Доступность",
+    "2": "Наименование спортивного объекта",
+    "3": "Ведомственная принадлежность",
+    "5": "Тип спортивной зоны",
+    "6": "Вид спортивных услуг",
+};
+
+export const spr_distance =
+{
+    "500": "радиус 500 м",
+    "1000": "радиус 1 000 м",
+    "3000": "радиус 3 000 м",
+    "5000": "радиус 5 000 м",
+};
+
+
 export const spr_affiinity =
 {
     "1": "Городское",
@@ -167,6 +185,30 @@ export const spr_sport =
     "412": "Прыжки на лыжах с трамплина",
     "413": "Спорт лиц с ограниченными возможностями здоровья всех категорий",
     "414": "Велосипедный спорт",
+};
+
+export const spr_icon_sport = {
+    "256": "256_hoсkey.svg",
+    "257": "257,294_skates.svg",
+    "258": "258_basketball.svg",
+    "259": "259,361_football.svg",
+    "263": "263_volleyball.svg",
+    "265": "265,285,321,337_gymnastics.svg",
+    "266": "266,267,269_martialarts.svg",
+    "267": "266,267,269_martialarts.svg",
+    "269": "266,267,269_martialarts.svg",
+    "270": "270_tennis.svg",
+    "272": "365,272_skiing.svg",
+    "285": "265,285,321,337_gymnastics.svg",
+    "294": "257,294_skates.svg",
+    "321": "265,285,321,337_gymnastics.svg",
+    "334": "334_snowboarding.svg",
+    "337": "265,285,321,337_gymnastics.svg",
+    "348": "348_sneaker.svg",
+    "361": "259,361_football.svg",
+    "365": "365,272_skiing.svg",
+    "384": "384_baseball.svg",
+    "390": "390_rugby.svg",
 };
 
 export const spr_zonetype = {

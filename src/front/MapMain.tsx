@@ -10,13 +10,7 @@ import {
     spr_sport,
     spr_zonetype
 } from './mock/sprs';
-
-interface IMapMainProps {
-    objs: IObj[],
-    emitter: EventEmitter,
-    isPopulationLayer?: boolean,
-    districts: IDistrict[]
-}
+import { HomePageProps as  IMapMainProps } from './HomePage/HomePage';
 
 interface IMapMainState {
 

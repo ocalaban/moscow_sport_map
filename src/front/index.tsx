@@ -1,9 +1,13 @@
 import * as React from 'react';
 import ReactDOM from 'react-dom';
-
 const DG = require('2gis-maps');
+import 'antd/dist/antd.css';
+
+import './App.scss';
 
 import App from './App';
+import { LoginPage } from './LoginPage/LoginPage';
+import { BrowserRouter } from 'react-router-dom';
 
 DG.then
 (
@@ -14,7 +18,9 @@ DG.then
 ).then(
     function() {
         ReactDOM.render(
-            <App />,
+            <BrowserRouter>
+                <App />
+            </BrowserRouter>,
             document.getElementById('root')
         );        
     }

@@ -8,7 +8,9 @@ import { getInterjacentColorStr, IDistrict, IObj, IPart, IRGBA, keys_IObj, keys_
 import objs from './mock/sport_objects.json';
 import districts from './mock/population_data.json';
 
-import './App.scss';
+import { Select } from 'antd';
+
+const { Option } = Select;
 
 const limitMarkers = +Infinity;
 import {
@@ -16,6 +18,9 @@ import {
     spr_sport,
     spr_zonetype
 } from './mock/sprs';
+import { Header } from './Header/Header';
+import { Footer } from './Footer/Footer';
+import { Sidebar } from './Sidebar/Sidebar';
 
 interface IAppProps {
 
@@ -93,6 +98,7 @@ class App extends React.Component<IAppProps, IAppState> {
     render() {
         return (
             <>
+            <Header />
                 <div className="mapContainer">
                     <MapMain
                         objs={this.state.objs}
@@ -101,7 +107,10 @@ class App extends React.Component<IAppProps, IAppState> {
                         districts={districts as any} /* IDistrict[] */
                     />
                 </div>
-                <div className="panel">
+                <Sidebar />
+            <Footer />
+            
+                {/* <div className="panel">
                     <div className="title">
                         Панель управления
                     </div>
@@ -177,19 +186,19 @@ class App extends React.Component<IAppProps, IAppState> {
                         <div className="label">
                             Тип спортивной зоны
                         </div>
-                        <div className="inputWrapper">
-                            <select
+                        <div className="inputWrapper">  
+                        <Select defaultValue="Все" style={{ width: 120 }}
                                 onChange={(event) => {
-                                    let value = +event.target.value;
-                                    this.setState({
-                                        zonetypeId: value
-                                    }, this.applyFilter);
+                                    // let value = +event.target.value;
+                                    // this.setState({
+                                    //     zonetypeId: value
+                                    // }, this.applyFilter);
                                 }}
                             >
-                                <option key={0} value={0}>Все</option>
-                                {Object.keys(spr_zonetype).map(key => <option key={key} value={key}>{spr_zonetype[key]}</option>)}
-                            </select>
-                        </div>
+                                <Option key={0} value={0}>Все</Option>
+                                {Object.keys(spr_zonetype).map(key =>  <Option key={key} value={key}>{spr_zonetype[key]}</Option>)}
+                                </Select>
+                            </div>
                     </div>
                     <div className="inputContainer">
                         <div className="label">
@@ -274,7 +283,7 @@ class App extends React.Component<IAppProps, IAppState> {
                             })}
                         </div>
                     </div>
-                </div>
+                </div> */}
             </>
         );
     }

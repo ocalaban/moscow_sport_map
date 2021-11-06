@@ -64,17 +64,46 @@ module.exports = {
                     }
                 ],
             },
+
+            
+            {
+                test: /\.css$/,
+                exclude: /\.module\.css$/,
+                use: [
+                    MiniCssExtractPlugin.loader,
+                    {
+                        loader: 'css-loader',
+                        options: {
+                            sourceMap: true,
+                            import: true,
+                        }
+                    },
+                ],
+            },
+            {
+                test: /\.module\.css$/,
+                use: [
+                    MiniCssExtractPlugin.loader,
+                    {
+                        loader: 'css-loader',
+                        options: {
+                            sourceMap: true,
+                            import: true,
+                            modules: { getLocalIdent: getCSSModuleLocalIdent }
+                        }
+                    },
+                ],
+            },
+
             {
                 test: /\.(jpg|png|gif|svg)$/,
-                use: {
-                    loader: 'file-loader',
-                    options: {
-                        name: "[name].[ext]",
-                        outputPath: "../svg",
-                        esModule: false
-                    }
+                loader: 'file-loader',
+                options: {
+                    name: "[name].[ext]",
+                    outputPath: "./assets",
+                    esModule: false
                 }
-            }
+            },
         ]
     },
     resolve: {
