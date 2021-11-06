@@ -14,7 +14,7 @@ const LAT0 = 56; // .123456
 const LNG0 = 36; // .123456;
 
 const dir = __dirname + '/../../src/front/mock_net/';
-const file = dir + 'net_near_10_step100m.json';
+// const file = dir + 'net_near_10_step100m.json';
 const file_cover = dir + 'net_cover_step100m.json';
 
 const radii = [5000, 3000, 1000, 500];
@@ -29,7 +29,7 @@ let arr = [];
 let arr_cover = [];
 
 async function main() {
-    await fs.promises.writeFile(file, '[');
+    // await fs.promises.writeFile(file, '[');
     await fs.promises.writeFile(file_cover, '[');
 
     let lng, lat;
@@ -91,7 +91,7 @@ async function main() {
             arr.push(cur_near);
             arr_cover.push(cur_cover);
 
-            await fs.promises.writeFile(file, (!isFirst ? ',' : '') + '\n' +'\t' + JSON.stringify(cur_near), { flag: 'a' });
+            // await fs.promises.writeFile(file, (!isFirst ? ',' : '') + '\n' +'\t' + JSON.stringify(cur_near), { flag: 'a' });
             await fs.promises.writeFile(file_cover, (!isFirst ? ',' : '') + '\n' + '\t' + JSON.stringify(cur_cover), { flag: 'a' });
             isFirst = false;
         }
@@ -100,7 +100,7 @@ async function main() {
         arr_cover = [];
     }
 
-    await fs.promises.writeFile(file, ']', { flag: 'a' });
+    // await fs.promises.writeFile(file, ']', { flag: 'a' });
     await fs.promises.writeFile(file_cover, ']', { flag: 'a' });
 
     let t1 = Date.now();
