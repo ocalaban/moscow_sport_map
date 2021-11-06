@@ -2,8 +2,8 @@
   "compilerOptions": {
     "module": "commonjs",
     "sourceMap": true,
-    "outDir": "dest/back",
-    "rootDir": "src/back",
+    "outDir": "dest",
+    "rootDir": "src",
     "target": "es6",
     "lib": ["es6","dom"],
     "jsx": "react",
@@ -14,7 +14,8 @@
         "node_modules/*"
       ]
     },
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "resolveJsonModule": true
   },
-  "exclude": ["node_modules", "src/front"]
+  "exclude": ["node_modules", "src/front", "src/mid"]
 }

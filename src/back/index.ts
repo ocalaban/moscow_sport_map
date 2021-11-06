@@ -7,7 +7,7 @@ app.use(cors());
 import { createServer } from "http";
 import path from 'path';
 
-const httpServer = createServer(app); // app is needed only to handle static sim. with socket 
+const httpServer = createServer(app);
 
 app.get('/', function (req, res) {
   res.sendFile(path.resolve(__dirname + '/../front/index.html'));
@@ -16,8 +16,6 @@ app.get('/', function (req, res) {
   res.setHeader('Access-Control-Allow-Headers', 'origin, content-type, accept');  
 });
 
-app.use(express.static(path.resolve(__dirname + '/../front'))); // resolve in need!
-
-// app.use('/domurl', express.static(__dirname + '/node_modules/domurl/'));
+app.use(express.static(path.resolve(__dirname + '/../front')));
 
 httpServer.listen(8330);

@@ -3,10 +3,10 @@ import * as React from 'react';
 import EventEmitter from 'events';
 
 import MapMain from './MapMain';
-import { getInterjacentColorStr, IDistrict, IObj, IPart, IRGBA, keys_IObj, keys_IPart } from './types';
+import { getInterjacentColorStr, IObj, IRGBA } from '../mid/misc/types';
 
 import objs from './mock/sport_objects.json';
-import districts from './mock/population_data.json';
+import districts from './mock/districts.json';
 
 import './App.scss';
 
@@ -16,6 +16,7 @@ import {
     spr_sport,
     spr_zonetype
 } from './mock/sprs';
+import Table from './Table';
 
 interface IAppProps {
 
@@ -30,6 +31,8 @@ interface IAppState {
     org?: string,
     sportzone?: string,
     isPopulationLayer?: boolean,
+    isCoverNet?: boolean,
+    isOnlyOldRegions?: boolean
 }
 
 class App extends React.Component<IAppProps, IAppState> {
@@ -47,7 +50,7 @@ class App extends React.Component<IAppProps, IAppState> {
     }
 
     applyFilter() {
-        console.log('applyFilter()');
+        // console.log('applyFilter()');
 
         let newObjs = (objs as unknown as IObj[]).filter(obj => {
             let res = true;
@@ -98,7 +101,9 @@ class App extends React.Component<IAppProps, IAppState> {
                         objs={this.state.objs}
                         emitter={this.emitter}
                         isPopulationLayer={this.state.isPopulationLayer}
+                        isCoverNet={this.state.isCoverNet}
                         districts={districts as any} /* IDistrict[] */
+                        sportId={this.state.sportId}
                     />
                 </div>
                 <div className="panel">
@@ -237,6 +242,13 @@ class App extends React.Component<IAppProps, IAppState> {
                             });
                         }}>{this.state.isPopulationLayer ? 'Убрать' : 'Показать'} плотность населения</button>
                     </div>
+                    <div className="inputContainer">
+                        <button onClick={() => {
+                            this.setState({
+                                isCoverNet: !this.state.isCoverNet
+                            });
+                        }}>{this.state.isCoverNet ? 'Убрать' : 'Показать'} сетку охвата</button>
+                    </div>
                     <div className="info">
                         <div style={{ width: 200, float: 'left' }}>
                             <div>Диапазоны площади объектов, кв.м.</div>
@@ -252,7 +264,7 @@ class App extends React.Component<IAppProps, IAppState> {
                                         <div style={{ float: 'left', paddingLeft: 5 }}>{2 ** i - 1}{(i < 14) ? (<>&ndash;{2 ** (i + 1) - 1}</>) : <>+</>}</div>
                                     </div>
                                     <div style={{ clear: 'both' }}></div>
-                                </React.Fragment> );
+                                </React.Fragment>);
                             })}
                         </div>
                         <div style={{ width: 200, float: 'left' }}>
@@ -274,6 +286,11 @@ class App extends React.Component<IAppProps, IAppState> {
                             })}
                         </div>
                     </div>
+                </div>
+                <div className="analytics">
+                    <Table
+                        objs={this.state.objs}
+                    />
                 </div>
             </>
         );
