@@ -46,10 +46,9 @@ export default function getDistrictsWithCalc(objs: IObj[]) {
         return res;
     });
 
-    districts_src.forEach((arr, i) => {
+    districts.forEach((arr, i) => {
         let stats = getSportStats(objs, districts, sport_objects_district, i);
-        let res = Object.assign(arr, stats);
-        return res;
+        districts[i] = Object.assign(arr, stats);
     });
 
     return districts;
@@ -92,7 +91,7 @@ export function getSportStats(objsBig: IObj[], districts, sport_objects_district
     let res = {
         countSpecific: round(count / divider, 1),
         sumSpecific: round(sum / divider, 1),
-        countRolesSpecific: round(countRoles / divider, 1)
+        countRolesSpecific: Math.round(countRoles / divider)
     };
 
     return res;

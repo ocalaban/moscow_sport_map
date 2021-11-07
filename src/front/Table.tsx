@@ -6,9 +6,17 @@ import getDistrictsWithCalc from '../mid/misc/helpers';
 const XLSX = require('xlsx');
 
 import './Table.scss';
+import { IFilter } from './App';
+
+import {
+    spr_affinity,
+    spr_sport,
+    spr_zonetype
+} from './mock/sprs';
 
 interface ITableProps {
     objs: IObj[],
+    filter: IFilter
 }
 
 interface ITableState {
@@ -56,8 +64,6 @@ export default class Table extends React.Component<ITableProps, ITableState> {
     }
 
     render() {
-        console.log('render()');
-        
         let districtsToShow: IDistrict[] = (this.state.districts).filter((row: IDistrict) => {
             let res = true;
 
@@ -71,11 +77,31 @@ export default class Table extends React.Component<ITableProps, ITableState> {
         return (<>
             <div>
                 <button onClick={() => {
-                    this.setState((state) => {
-                        return {
-                            isOnlyOldRegions: !state.isOnlyOldRegions
-                        };
-                    })
+                    let arr = [
+                        ['Название спортивного объекта', this.props.filter.name || ''],
+                        ['Ведомственная принадлежность', this.props.filter.org || ''],
+                        ['Наименование спортивных зон', this.props.filter.sportzone || ''],
+                        ['Тип спортивной зоны', this.props.filter.zonetypeId ? spr_zonetype[this.props.filter.zonetypeId] : ''],
+                        ['Вид спорта', this.props.filter.sportId ? spr_sport[this.props.filter.sportId] : ''],
+                        ['Доступность', this.props.filter.affinityId ? spr_affinity[this.props.filter.affinityId] : ''],
+                        [],
+                    ];
+
+                    this.state.districts.forEach((row) => {
+                        let cur = Object.keys(base).map(key => row[key]);
+                        arr.push(cur);
+                    });
+
+                    let binaryWS = XLSX.utils.json_to_sheet(arr);
+
+                    // Create a new Workbook
+                    var wb = XLSX.utils.book_new();
+
+                    // Name your sheet
+                    XLSX.utils.book_append_sheet(wb, binaryWS, 'Districts');
+
+                    // export your excel
+                    XLSX.writeFile(wb, 'districts.xlsx');
                 }}>
                     Экспортировать в XLSX
                 </button>

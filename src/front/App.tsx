@@ -14,11 +14,6 @@ const { Option } = Select;
 import './App.scss';
 
 const limitMarkers = +Infinity;
-import {
-    spr_affinity,
-    spr_sport,
-    spr_zonetype
-} from './mock/sprs';
 import { Header } from './Header/Header';
 import { Footer } from './Footer/Footer';
 import { Sidebar } from './Sidebar/Sidebar';
@@ -58,15 +53,13 @@ class App extends React.Component<IAppProps, IAppState> {
         this.emitter = new EventEmitter;
 
         this.state = {
-            isEntranceRemoved: true,
+            // isEntranceRemoved: true,
             objs: objs as unknown as IObj[],
             filter: {}
         }
     }
 
     applyFilter() {
-        // console.log('applyFilter()');
-
         let newObjs = (objs as unknown as IObj[]).filter(obj => {
             let res = true;
 
@@ -134,6 +127,7 @@ class App extends React.Component<IAppProps, IAppState> {
                     <div className="analytics">
                         <Table
                             objs={this.state.objs}
+                            filter={this.state.filter}
                         />
                     </div>
                     <Sidebar
