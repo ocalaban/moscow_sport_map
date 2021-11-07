@@ -1,4 +1,4 @@
-export const spr_affiinity =
+export const spr_affinity =
 {
     "1": "Городское",
     "2": "Окружное",

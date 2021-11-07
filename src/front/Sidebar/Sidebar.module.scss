@@ -1,0 +1,116 @@
+.sidebar {
+    width: 350px;
+    height: 100%;
+    background: #e2f2d4;
+    z-index: 1;
+    position: fixed;
+    top: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    transition: 0.2s transform;
+}
+.wrapper {
+    margin-top: 120px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 15px;
+}
+
+.sidebarHidden {
+    transform: translateX(95%);
+}
+
+.text {
+    font-size: 14px;
+    line-height: 18px;
+    color: #000000;
+    padding-bottom: 2px;
+    margin-bottom: 5px;
+}
+
+.mixGroup {
+    margin-bottom: 15px;
+}
+
+.mixGroup .text {
+    border-bottom: 1px solid #ffffff;
+}
+
+.circle {
+    background: #ffffff;
+    border: 10px solid #e2f2d4;
+    box-sizing: border-box;
+    border-radius: 50px;
+    width: 54px;
+    height: 54px;
+    position: absolute;
+    top: 50%;
+    left: -27px;
+    cursor: pointer;
+}
+
+.line {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transition: 0.2s transform;
+    transform: translate(-50%, -50%);
+}
+
+.show {
+    transform: translate(-50%, -50%) rotate(180deg);
+}
+
+.checkbox {
+    margin-bottom: 5px;
+}
+
+.mix {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 24px;
+}
+
+.select {
+    height: 32px;
+}
+
+.selectImg {
+    padding-right: 10px;
+    padding-bottom: 4px;
+    height: 25px;
+}
+
+.collapse {
+    width: 300px;
+    height: 33px;
+    z-index: 6;
+}
+
+.mixPanel {
+    display: flex;
+    justify-content: space-between;
+}
+
+.title {
+    color: #000000;
+}
+
+.description {
+    color: #a7a2a2;
+}
+
+.fitnessGirl {
+    position: absolute;
+    bottom: 60px;
+    z-index: -1;
+}
+
+button {
+    background-color: rgba(255, 255, 255, 0.5);
+    border-radius: 3px;
+    border-width: 1px;
+    width: 300px;
+}

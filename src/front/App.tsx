@@ -8,30 +8,43 @@ import { getInterjacentColorStr, IObj, IRGBA } from '../mid/misc/types';
 import objs from './mock/sport_objects.json';
 import districts from './mock/districts.json';
 
+import { Select } from 'antd';
+const { Option } = Select;
+
 import './App.scss';
 
 const limitMarkers = +Infinity;
 import {
-    spr_affiinity,
+    spr_affinity,
     spr_sport,
     spr_zonetype
 } from './mock/sprs';
+import { Header } from './Header/Header';
+import { Footer } from './Footer/Footer';
+import { Sidebar } from './Sidebar/Sidebar';
+import { LoginPage } from './LoginPage/LoginPage';
+
 import Table from './Table';
 
-interface IAppProps {
-
-}
-
-interface IAppState {
-    objs: IObj[],
+export interface IFilter {
     affinityId?: number,
     sportId?: number,
     zonetypeId?: number,
     name?: string,
     org?: string,
     sportzone?: string,
+}
+
+interface IAppProps {
+}
+
+interface IAppState {
+    isEntranceRemoved?: boolean,
+    objs: IObj[],
+    filter: IFilter,
     isPopulationLayer?: boolean,
     isCoverNet?: boolean,
+    isAvailOnClick?: boolean,
     isOnlyOldRegions?: boolean
 }
 
@@ -45,7 +58,9 @@ class App extends React.Component<IAppProps, IAppState> {
         this.emitter = new EventEmitter;
 
         this.state = {
-            objs: objs as unknown as IObj[]
+            isEntranceRemoved: true,
+            objs: objs as unknown as IObj[],
+            filter: {}
         }
     }
 
@@ -55,33 +70,33 @@ class App extends React.Component<IAppProps, IAppState> {
         let newObjs = (objs as unknown as IObj[]).filter(obj => {
             let res = true;
 
-            if (this.state.affinityId) {
-                res = res && obj.affinityId == this.state.affinityId;
+            if (this.state.filter.affinityId) {
+                res = res && obj.affinityId == this.state.filter.affinityId;
             }
 
-            if (this.state.sportId) {
+            if (this.state.filter.sportId) {
                 res = res && !!obj.parts.filter(part => {
-                    return (part.roles as any).includes('' + (this.state.sportId as any));
+                    return (part.roles as any).includes('' + (this.state.filter.sportId as any));
                 }).length;
             }
 
-            if (this.state.zonetypeId) {
+            if (this.state.filter.zonetypeId) {
                 res = res && !!obj.parts.filter(part => {
-                    return part.sportzonetypeId == this.state.zonetypeId;
+                    return part.sportzonetypeId == this.state.filter.zonetypeId;
                 }).length;
             }
 
-            if (this.state.name) {
-                res = res && obj.name.toLowerCase().includes(this.state.name.toLowerCase());
+            if (this.state.filter.name) {
+                res = res && obj.name.toLowerCase().includes(this.state.filter.name.toLowerCase());
             }
 
-            if (this.state.org) {
-                res = res && obj.org?.toLowerCase().includes(this.state.org.toLowerCase());
+            if (this.state.filter.org) {
+                res = res && obj.org?.toLowerCase().includes(this.state.filter.org.toLowerCase());
             }
 
-            if (this.state.sportzone) {
+            if (this.state.filter.sportzone) {
                 res = res && !!obj.parts.filter(part => {
-                    return part.sportzone?.toLowerCase().includes(this.state.sportzone.toLowerCase());
+                    return part.sportzone?.toLowerCase().includes(this.state.filter.sportzone.toLowerCase());
                 }).length;
             }
 
@@ -94,161 +109,68 @@ class App extends React.Component<IAppProps, IAppState> {
     }
 
     render() {
-        return (
-            <>
-                <div className="mapContainer">
-                    <MapMain
-                        objs={this.state.objs}
+        if (!this.state.isEntranceRemoved) {
+            return (<LoginPage
+                callback={() => {
+                    this.setState({ isEntranceRemoved: true })
+                }}
+            />);
+        } else {
+            return (
+                <>
+                    <Header />
+                    <div className="mapContainer">
+                        <MapMain
+                            objs={this.state.objs}
+                            emitter={this.emitter}
+                            isPopulationLayer={this.state.isPopulationLayer}
+                            isCoverNet={this.state.isCoverNet}
+                            isAvailOnClick={this.state.isAvailOnClick}
+                            districts={districts as any} /* IDistrict[] */
+                            sportId={this.state.filter.sportId}
+                        />
+                    </div>
+                    <div style={{clear: 'both'}}></div>
+                    <div className="analytics">
+                        <Table
+                            objs={this.state.objs}
+                        />
+                    </div>
+                    <Sidebar
+                        onChange={(filter, doApply) => {
+                            console.log(filter);
+                            let newFilter = { ...this.state.filter, ...filter };
+                            this.setState({ filter: newFilter }, () => {
+                                if (doApply) {
+                                    this.applyFilter();
+                                }
+                            });
+                        }}
                         emitter={this.emitter}
                         isPopulationLayer={this.state.isPopulationLayer}
+                        toggleIsPopulationLayer={() => {
+                            this.setState((state) => {
+                                return { isPopulationLayer: !state.isPopulationLayer }
+                            })
+                        }}
                         isCoverNet={this.state.isCoverNet}
-                        districts={districts as any} /* IDistrict[] */
-                        sportId={this.state.sportId}
+                        toggleIsCoverNet={() => {
+                            this.setState((state) => {
+                                return { isCoverNet: !state.isCoverNet }
+                            })
+                        }}
+                        isAvailOnClick={this.state.isAvailOnClick}
+                        toggleIsAvailOnClick={() => {
+                            this.setState((state) => {
+                                return { isAvailOnClick: !state.isAvailOnClick }
+                            })
+                        }}
+                        applyFilter={this.applyFilter.bind(this)}
+                        filter={this.state.filter}
                     />
-                </div>
-                <div className="panel">
-                    <div className="title">
-                        Панель управления
-                    </div>
+                    <Footer />
 
-                    <div className="inputContainer">
-                        <div className="label">
-                            Наименование спортивного объекта
-                        </div>
-                        <div className="inputWrapper">
-                            <input
-                                name="name"
-                                value={this.state.name || ''}
-                                placeholder="Введите часть названия"
-                                onChange={(event) => {
-                                    let value = event.target.value;
-                                    this.setState({
-                                        name: value
-                                    });
-                                }}
-                                onBlur={(event) => {
-                                    console.log('onBlur');
-                                    this.applyFilter();
-                                }}
-                            />
-                        </div>
-                    </div>
-
-                    <div className="inputContainer">
-                        <div className="label">
-                            Ведомственная принадлежность
-                        </div>
-                        <div className="inputWrapper">
-                            <input
-                                name="org"
-                                value={this.state.org || ''}
-                                placeholder="Введите часть названия"
-                                onChange={(event) => {
-                                    let value = event.target.value;
-                                    this.setState({
-                                        org: value
-                                    });
-                                }}
-                                onBlur={(event) => {
-                                    this.applyFilter();
-                                }}
-                            />
-                        </div>
-                    </div>
-
-                    <div className="inputContainer">
-                        <div className="label">
-                            Наименование спортивных зон
-                        </div>
-                        <div className="inputWrapper">
-                            <input
-                                name="sportzone"
-                                value={this.state.sportzone || ''}
-                                placeholder="Введите часть названия"
-                                onChange={(event) => {
-                                    let value = event.target.value;
-                                    this.setState({
-                                        sportzone: value
-                                    });
-                                }}
-                                onBlur={(event) => {
-                                    this.applyFilter();
-                                }}
-                            />
-                        </div>
-                    </div>
-
-                    <div className="inputContainer">
-                        <div className="label">
-                            Тип спортивной зоны
-                        </div>
-                        <div className="inputWrapper">
-                            <select
-                                onChange={(event) => {
-                                    let value = +event.target.value;
-                                    this.setState({
-                                        zonetypeId: value
-                                    }, this.applyFilter);
-                                }}
-                            >
-                                <option key={0} value={0}>Все</option>
-                                {Object.keys(spr_zonetype).map(key => <option key={key} value={key}>{spr_zonetype[key]}</option>)}
-                            </select>
-                        </div>
-                    </div>
-                    <div className="inputContainer">
-                        <div className="label">
-                            Вид спорта
-                        </div>
-                        <div className="inputWrapper">
-                            <select
-                                onChange={(event) => {
-                                    let value = +event.target.value;
-                                    this.setState({
-                                        sportId: value
-                                    }, this.applyFilter);
-                                }}
-                            >
-                                <option key={0} value={0}>Все</option>
-                                {Object.keys(spr_sport).map(key => <option key={key} value={key}>{spr_sport[key]}</option>)}
-                            </select>
-                        </div>
-                    </div>
-                    <div className="inputContainer">
-                        <div className="label">
-                            Доступность
-                        </div>
-                        <div className="inputWrapper">
-                            <select
-                                onChange={(event) => {
-                                    let value = +event.target.value;
-                                    this.setState({
-                                        affinityId: value
-                                    }, this.applyFilter);
-                                }}
-                            >
-                                <option key={0} value={0}>Все</option>
-                                {Object.keys(spr_affiinity).map(key => <option key={key} value={key}>{spr_affiinity[key]}</option>)}
-                            </select>
-                        </div>
-                    </div>
-                    <div className="inputContainer">
-                        <button onClick={() => { this.emitter.emit('clearCircles'); }}>Очистить круги доступности</button>
-                    </div>
-                    <div className="inputContainer">
-                        <button onClick={() => {
-                            this.setState({
-                                isPopulationLayer: !this.state.isPopulationLayer
-                            });
-                        }}>{this.state.isPopulationLayer ? 'Убрать' : 'Показать'} плотность населения</button>
-                    </div>
-                    <div className="inputContainer">
-                        <button onClick={() => {
-                            this.setState({
-                                isCoverNet: !this.state.isCoverNet
-                            });
-                        }}>{this.state.isCoverNet ? 'Убрать' : 'Показать'} сетку охвата</button>
-                    </div>
+                    {/* 
                     <div className="info">
                         <div style={{ width: 200, float: 'left' }}>
                             <div>Диапазоны площади объектов, кв.м.</div>
@@ -286,14 +208,10 @@ class App extends React.Component<IAppProps, IAppState> {
                             })}
                         </div>
                     </div>
-                </div>
-                <div className="analytics">
-                    <Table
-                        objs={this.state.objs}
-                    />
-                </div>
-            </>
-        );
+                </div> */}
+                </>
+            );
+        }
     }
 }
 

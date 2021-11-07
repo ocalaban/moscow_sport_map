@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 
 const DG = require('2gis-maps');
 
+import './css/index.scss';
 import App from './App';
 
 DG.then

@@ -66,15 +66,13 @@ module.exports = {
             },
             {
                 test: /\.(jpg|png|gif|svg)$/,
-                use: {
-                    loader: 'file-loader',
-                    options: {
-                        name: "[name].[ext]",
-                        outputPath: "../svg",
-                        esModule: false
-                    }
+                loader: 'file-loader',
+                options: {
+                    name: "[name].[ext]",
+                    outputPath: "./assets",
+                    esModule: false
                 }
-            }
+            },
         ]
     },
     resolve: {

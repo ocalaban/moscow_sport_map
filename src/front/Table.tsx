@@ -3,6 +3,10 @@ import * as React from 'react';
 import { IDistrict, IObj } from '../mid/misc/types';
 import getDistrictsWithCalc from '../mid/misc/helpers';
 
+const XLSX = require('xlsx');
+
+import './Table.scss';
+
 interface ITableProps {
     objs: IObj[],
 }
@@ -29,14 +33,11 @@ export default class Table extends React.Component<ITableProps, ITableState> {
     constructor(props) {
         super(props);
 
-        let t0 = Date.now();
         this.state = {
             districts: getDistrictsWithCalc(props.objs),
             orderField: 'name',
             isAsc: base['name'].isAscDefault,
         };
-        let t1 = Date.now();
-        console.log((t1 - t0) + ' миллисек'); // @@##
     }
 
     shouldComponentUpdate(nextProps) {
@@ -55,6 +56,8 @@ export default class Table extends React.Component<ITableProps, ITableState> {
     }
 
     render() {
+        console.log('render()');
+        
         let districtsToShow: IDistrict[] = (this.state.districts).filter((row: IDistrict) => {
             let res = true;
 
@@ -74,19 +77,31 @@ export default class Table extends React.Component<ITableProps, ITableState> {
                         };
                     })
                 }}>
-                    {this.state.isOnlyOldRegions ? "Показать" : "Убрать"} новые округа
+                    Экспортировать в XLSX
                 </button>
             </div>
+            {/* <div>
+                <button onClick={() => {
+                    this.setState((state) => {
+                        return {
+                            isOnlyOldRegions: !state.isOnlyOldRegions
+                        };
+                    })
+                }}>
+                    {this.state.isOnlyOldRegions ? "Показать" : "Убрать"} новые округа
+                </button>
+            </div> */}
             <table>
                 <thead>
                     <tr>
                         {Object.keys(base).map((key) =>
-                        (<th 
+                        (<th
+                            style={{ cursor: 'pointer' }}
                             key={key}
-                            onClick={()=>{
+                            onClick={() => {
                                 this.setOrder(key, true);
                             }}
-                            >
+                        >
                             {base[key].name}
                             {this.getOrderSignSpan(key)}
                         </th>))}
@@ -110,7 +125,7 @@ export default class Table extends React.Component<ITableProps, ITableState> {
 
     private setOrder(field: string, doChangeDirection: boolean) {
         let isAsc;
-        
+
         if (this.state.orderField === field) {
             if (doChangeDirection) {
                 isAsc = !this.state.isAsc;

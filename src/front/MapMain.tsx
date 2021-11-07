@@ -1,27 +1,99 @@
 import * as React from 'react';
 import EventEmitter from 'events';
 import sport_objects_district from './mock/sport_objects_district.json';
-// import net_1000m from './mock/net_1000m.json';
-import net_1000m from './mock_net/net_cover_step1000m.json';
-// import { getSportStats } from ''
+import hull from 'hull.js';
 
 import { getInterjacentColorStr, IDistrict, IObj, IRGBA } from '../mid/misc/types';
 
 import {
-    spr_affiinity,
+    spr_affinity,
     spr_sport,
     spr_zonetype
 } from './mock/sprs';
-import { getSportStats } from '../mid/misc/helpers';
+import { getSportStats, isInMoscow } from '../mid/misc/helpers';
+import { distanceLatLng } from '../mid/lib/geom';
+import { shadowScreen, unshadowScreen } from './funcBro';
+import { array_unique } from '../mid/lib/func';
 
-function getNet() {
+async function calcNet(objs: IObj[]) {
+    const GRID_SIZE_LAT = 100;
+    const GRID_SIZE_LNG = GRID_SIZE_LAT;
+    const STEP_LAT = -0.01; // ~ 1000 м
+    const STEP_LNG = -STEP_LAT * 2; // ~ 1000 м
+    const LAT0 = 56;
+    const LNG0 = 36;
+
+    const radii = [5000, 3000, 1000, 500];
+
+    let t0 = Date.now();
+    let arr_cover = [];
+
+    let lng, lat;
+    let isFirst = true;
+
+    for (let i = 0; i < GRID_SIZE_LAT; i++) {
+        lat = LAT0 + STEP_LAT * i;
+
+        // console.log(i);
+
+        for (let j = 0; j < GRID_SIZE_LNG; j++) {
+            lng = LNG0 + STEP_LNG * j;
+
+            if (!isInMoscow([lat, lng])) {
+                continue;
+            }
+
+            let raw = [];
+            let cur_cover = {
+                lat,
+                lng,
+                qty: 0
+            };
+
+            objs.forEach((obj) => {
+                let d = distanceLatLng(
+                    [lat, lng],
+                    [obj.lat, obj.lng]
+                );
+
+                raw.push({
+                    d: d,
+                    lat,
+                    lng,
+                    id: obj.id,
+                });
+
+                let radius = obj.affinityId ? radii[obj.affinityId - 1] : null;
+
+                if (radius && (d <= radius)) {
+                    cur_cover.qty += 1;
+                }
+            });
+
+            arr_cover.push(cur_cover);
+
+            isFirst = false;
+        }
+
+        // arr_cover = [];
+    }
+
+    let t1 = Date.now();
+
+    return arr_cover;
+}
+
+async function getNet(objs: IObj[]) {
     let max = 0;
     const stepCount = 10;
 
     const rgb1 = [255, 0, 0, 1] as IRGBA;
     const rgb2 = [0, 255, 0, 1] as IRGBA;
-    
-    net_1000m.forEach((row) => {
+
+    // net_1000m
+    let net = await calcNet(objs);
+
+    net.forEach((row) => {
         if (row.qty > max) {
             max = row.qty;
         }
@@ -30,14 +102,32 @@ function getNet() {
     max++;
 
     let res = [];
-    net_1000m.forEach((row) => {
+    net.forEach((row) => {
         let step = Math.floor(row.qty / max * stepCount);
         let color = getInterjacentColorStr(step, stepCount, rgb1, rgb2);
 
-        res.push({...row, color});
+        res.push({ ...row, color });
     });
 
     return res;
+}
+
+function getColorBySquare(square) {
+    let step;
+
+    if (square && Math.log10(square) > 1) {
+        step = Math.floor(Math.log10(square));
+    } else {
+        step = 1;
+    }
+
+    const stepCount = 14;
+
+    const rgb1 = [255, 0, 0, 1] as IRGBA;
+    const rgb2 = [0, 255, 0, 1] as IRGBA;
+
+    let rgbStr = getInterjacentColorStr(step, stepCount, rgb1, rgb2);
+    return rgbStr;
 }
 
 const DG = require('2gis-maps');
@@ -47,12 +137,12 @@ interface IMapMainProps {
     emitter: EventEmitter,
     isPopulationLayer?: boolean,
     isCoverNet?: boolean,
+    isAvailOnClick?: boolean,
     districts: IDistrict[],
     sportId?: number
 }
 
 interface IMapMainState {
-    isAvailOnClick?: boolean
 }
 
 const clusterParams = {
@@ -70,6 +160,8 @@ export default class MapMain extends React.Component<IMapMainProps, IMapMainStat
     polys = [];
 
     nearestMarkers = [];
+    // nearestCircles = [];
+    intersectPoly;
 
     prevProps;
 
@@ -90,7 +182,7 @@ export default class MapMain extends React.Component<IMapMainProps, IMapMainStat
     }
 
     formPopupInnerHTML(obj: IObj) {
-        let affinityName = spr_affiinity[obj.affinityId];
+        let affinityName = spr_affinity[obj.affinityId];
 
         let res = `
             <div class="popup" title="id: ${obj.id}">
@@ -166,15 +258,13 @@ export default class MapMain extends React.Component<IMapMainProps, IMapMainStat
                     id="map"
                     style={{ width: '100%', height: '100%' }}
                     ref={(node) => {
-                        console.log('ref');
-
                         if (node) {
 
                             if (!this.map) {
 
                                 this.map = DG.map('map', {
-                                    'center': [55.64, 37.80],
-                                    'zoom': 13
+                                    'center': [55.754753, 37.620861],
+                                    'zoom': 11
                                 });
 
                                 // let l1 = {lat: 55.640000, lng: 37.800000};
@@ -191,7 +281,7 @@ export default class MapMain extends React.Component<IMapMainProps, IMapMainStat
                                     let count = 0;
                                     let wasIn = false;
 
-                                    if (this.state.isAvailOnClick) {
+                                    if (this.props.isAvailOnClick) {
                                         this.nearestObj(event);
                                     }
 
@@ -216,7 +306,7 @@ export default class MapMain extends React.Component<IMapMainProps, IMapMainStat
                                 })
                             }
 
-                            if (this.state.isAvailOnClick) {
+                            if (this.props.isAvailOnClick) {
                                 if (this.cluster) {
                                     this.map.removeLayer(this.cluster);
                                 }
@@ -245,20 +335,7 @@ export default class MapMain extends React.Component<IMapMainProps, IMapMainStat
                                         let radii = [5000, 3000, 1000, 500];
                                         let radius = radii[obj.affinityId - 1];
 
-                                        let step;
-
-                                        if (obj.square && Math.log10(obj.square) > 1) {
-                                            step = Math.floor(Math.log(obj.square));
-                                        } else {
-                                            step = 1;
-                                        }
-
-                                        const stepCount = 14;
-
-                                        const rgb1 = [255, 0, 0, 1] as IRGBA;
-                                        const rgb2 = [0, 255, 0, 1] as IRGBA;
-
-                                        let rgbStr = getInterjacentColorStr(step, stepCount, rgb1, rgb2);
+                                        let rgbStr = getColorBySquare(obj.square);
                                         marker.on('click', function () {
                                             let circle = DG.circle([obj.lat, obj.lng], { radius, color: rgbStr }).addTo(that.map);
                                             circle.square = obj.square;
@@ -341,30 +418,40 @@ export default class MapMain extends React.Component<IMapMainProps, IMapMainStat
                                         poly.removeFrom(this.map);
                                     });
 
-                                    getNet().forEach((row, i) => {
-                                        if (i < +Infinity) {
-                                            let shiftLat = 0.005;
-                                            let shiftLng = shiftLat * 2;
+                                    if (this.props.isCoverNet) {
+                                        shadowScreen();
 
-                                            let coords = [
-                                                [row.lat - shiftLat, row.lng - shiftLng],
-                                                [row.lat - shiftLat, row.lng + shiftLng],
-                                                [row.lat + shiftLat, row.lng + shiftLng],
-                                                [row.lat + shiftLat, row.lng - shiftLng]
-                                            ];
+                                        setTimeout(() => {
+                                            getNet(this.props.objs).then((arr) => {
+                                                arr.forEach((row, i) => {
+                                                    if (i < +Infinity) {
+                                                        let shiftLat = 0.005;
+                                                        let shiftLng = shiftLat * 2;
 
-                                            let poly = DG.polygon(coords, { color: row.color }).addTo(this.map);
-                                            poly.bindPopup(row.lat + '-' + row.lng);
+                                                        let coords = [
+                                                            [row.lat - shiftLat, row.lng - shiftLng],
+                                                            [row.lat - shiftLat, row.lng + shiftLng],
+                                                            [row.lat + shiftLat, row.lng + shiftLng],
+                                                            [row.lat + shiftLat, row.lng - shiftLng]
+                                                        ];
 
-                                            poly.addTo(this.map);
-                                        }
-                                    });
+                                                        let poly = DG.polygon(coords, { color: row.color }).addTo(this.map);
+                                                        // poly.bindPopup(row.lat + '-' + row.lng);
+
+                                                        poly.addTo(this.map);
+                                                        this.polys.push(poly);
+                                                    }
+                                                });
+
+                                                unshadowScreen();
+                                            });
+                                        });
+                                    }
                                 }
                             }
                         }
                     }}>
                 </div>
-                <button onClick={() => { this.setState({ isAvailOnClick: !this.state.isAvailOnClick }); }}>{this.state.isAvailOnClick ? "Отключить" : "Включить"} Режим анализа доступа по клику</button>
             </>
         );
     }
@@ -382,11 +469,21 @@ export default class MapMain extends React.Component<IMapMainProps, IMapMainStat
 
         this.nearestMarkers = [];
 
-        let marker = DG.marker(event.latlng).addTo(this.map);
+        if (this.intersectPoly) {
+            this.intersectPoly.removeFrom(this.map);
+        }
+
+        let marker = DG.marker({ ...event.latlng, opacity: 0.1 }).addTo(this.map);
         let popupContent = '';
         marker.bindPopup(popupContent);
 
         this.nearestMarkers.push(marker);
+
+        let minLat = +Infinity;
+        let minLng = +Infinity;
+        let maxLat = 0;
+        let maxLng = 0;
+        let objsFound = [];
 
         // const popups = DG.featureGroup();
         this.props.objs.forEach((obj, pos) => {
@@ -400,39 +497,162 @@ export default class MapMain extends React.Component<IMapMainProps, IMapMainStat
             let radius = radii[obj.affinityId - 1];
 
             if (distance <= radius) {
-
+                /*
                 // let popupContent = this.formPopupInnerHTML(obj);
 
                 // DG.popup()
                 //     .setLatLng([obj.lat, obj.lng])
                 //     .setContent(popupContent)
                 //     .addTo(popups);
+                */
 
                 let marker = DG.marker({ lat: obj.lat, lng: obj.lng }).addTo(this.map);
 
                 let popupContent = this.formPopupInnerHTML(obj);
                 marker.bindPopup(popupContent);
 
+                let radii = [5000, 3000, 1000, 500];
+                let radius = radii[obj.affinityId - 1];
+
+                let rgbStr = getColorBySquare(obj.square);
+                marker.on('click', () => {
+                    let circle = DG.circle([obj.lat, obj.lng], { radius, color: rgbStr }).addTo(this.map);
+                    circle.square = obj.square;
+
+                    this.circles.push(circle);
+                });
+
                 this.nearestMarkers.push(marker);
 
-                let step;
+                objsFound.push({ ...obj, radius })
 
-                if (obj.square && Math.log10(obj.square) > 1) { // @@##
-                    step = Math.floor(Math.log(obj.square));
-                } else {
-                    step = 1;
+                if (obj.lat < minLat) {
+                    minLat = obj.lat;
                 }
 
-                const stepCount = 14;
+                if (obj.lat > maxLat) {
+                    maxLat = obj.lat;
+                }
 
-                const rgb1 = [255, 0, 0, 1] as IRGBA;
-                const rgb2 = [0, 255, 0, 1] as IRGBA;
+                if (obj.lng < minLng) {
+                    minLng = obj.lng;
+                }
 
-                let rgbStr = getInterjacentColorStr(step, stepCount, rgb1, rgb2);
-                let circle = DG.circle([obj.lat, obj.lng], { radius, color: rgbStr }).addTo(this.map);
-                circle.square = obj.square;
-                this.circles.push(circle);
+                if (obj.lng > maxLng) {
+                    maxLng = obj.lng;
+                }
             }
         });
+
+        let amendLat = 0.05;
+        let amendLng = 0.05 * 2;
+
+        let startLat = minLat - amendLat;
+        let startLng = minLng - amendLng;
+
+        let obj1 = { lat: startLat, lng: startLng };
+        let obj2 = { lat: maxLat + amendLat, lng: maxLng + amendLng };
+        
+        // DG.marker(obj1).addTo(this.map); // угловые
+        // DG.marker(obj2).addTo(this.map);
+
+        if (objsFound.length) {
+            const STEP_LAT = 0.0001; // ~ 10 м
+            const STEP_LNG = STEP_LAT * 2; // ~ 100 м
+
+            let i = 0;
+            let lat;
+            let lng;
+
+            let points = [];
+            do {
+                let j = 0;
+
+                do {
+                    lat = startLat + i * STEP_LAT;
+                    lng = startLng + j * STEP_LNG;
+
+                    let isIn = true;
+                    for (let k = 0; k < objsFound.length; k++) {
+                        let d = this.map.distance(
+                            {
+                                lat: objsFound[k].lat,
+                                lng: objsFound[k].lng
+                            },
+                            {
+                                lat,
+                                lng
+                            }
+                        );
+
+                        if (d > objsFound[k].radius) {
+                            isIn = false;
+                            break;
+                        }
+                    }
+
+                    if (isIn) {
+                        points.push([lat, lng]);
+                    }
+
+                    j += 1;
+                } while (lng <= maxLng + amendLng);
+
+                i += 1;
+            } while (lat <= maxLat + amendLat);
+
+            if (points.length) {
+
+                let coords = hull(points);
+                
+                let sumSquare = 0;
+                let zoneTypeIds = [];
+                let sportIds = [];
+
+                objsFound.forEach((obj) => {
+                    sumSquare += obj.square;
+
+                    obj.parts.forEach(part => {
+                        zoneTypeIds.push(part.sportzonetypeId);
+                        sportIds = sportIds.concat(part.roles);
+                    })
+                });
+
+                zoneTypeIds = array_unique(zoneTypeIds);
+                sportIds = array_unique(sportIds);
+
+                let zoneTypes = zoneTypeIds.map(id => spr_zonetype[id]);
+                let sports = sportIds.map(id => spr_sport[id]);
+
+                let rgbStr = getColorBySquare(sumSquare);
+                this.intersectPoly = DG.polygon(coords, { color: rgbStr }).addTo(this.map);
+
+                let popupContent = 
+                `
+                <div class="popup">
+                    <div class="fieldCont">
+                        Находится в зоне доступности для кол-ва объектов: '+ ${objsFound.length}
+                    </div>
+                    <div class="fieldCont">
+                        Суммарная площадь: '+ ${sumSquare || '-'}
+                    </div>
+                    <div class="fieldCont">
+                        <div class="label">Типы спорт. зон</div>
+                        <div class="sports">
+                            ${zoneTypes.map((name) => `<div class="value">${name}</div>`).join('\n')}
+                        </div>
+                    </div>
+                    <div class="fieldCont">
+                        <div class="label">Виды спорта</div>
+                        <div class="sports">
+                            ${sports.map((name) => `<div class="value">${name}</div>`).join('\n')}
+                        </div>
+                    </div>
+                </div>
+                `;
+
+                this.intersectPoly.bindPopup(popupContent);
+            }
+        }
     }
 }

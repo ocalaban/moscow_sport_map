@@ -46,9 +46,9 @@ export default function getDistrictsWithCalc(objs: IObj[]) {
         return res;
     });
 
-    districts.forEach((arr, i) => {
+    districts_src.forEach((arr, i) => {
         let stats = getSportStats(objs, districts, sport_objects_district, i);
-        let res = Object.assign(arr, stats, { density: (arr.population / arr.square) });
+        let res = Object.assign(arr, stats);
         return res;
     });
 
