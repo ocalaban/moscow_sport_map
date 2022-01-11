@@ -1,5 +1,8 @@
 import express from 'express';
 import cors from 'cors';
+import * as dotenv from 'dotenv';
+
+dotenv.config();
 
 let app = express();
 app.use(cors());
@@ -18,4 +21,6 @@ app.get('/', function (req, res) {
 
 app.use(express.static(path.resolve(__dirname + '/../front')));
 
-httpServer.listen(8330);
+console.log(process.env.PORT);
+
+httpServer.listen(process.env.PORT);

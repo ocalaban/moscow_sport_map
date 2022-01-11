@@ -11,7 +11,8 @@
     "xlsx": "0.17.3",
     "hull.js": "1.0.2",
     "@types/hull.js": "1.0.1",
-    "react-fade-in": "^2.0.1"
+    "react-fade-in": "^2.0.1",
+    "dotenv": "11.0.0"
   },
   "devDependencies": {
     "@types/node": "16.10.2",
@@ -51,13 +52,18 @@
   "scripts": {
     "watchbacksrc": "tsc -w -p tsconfig.back.json",
     "buildback": "npm-run-all -p buildbacksrc",
-    "watch": "npm-run-all -p watchsrc",
+    "watchbro": "npm-run-all -p watchbrosrc",
     "watchback": "npm-run-all -p watchbacksrc",
     "watchserv": "webpack-dev-server",
-    "buildsrc": "webpack",
-    "build": "npm-run-all -p buildsrc",
-    "watchsrc": "webpack -w",
+    "buildbrosrc": "webpack",
+    "buildbro": "npm-run-all -p buildbrosrc",
+    "watchbrosrc": "webpack -w",
     "server": "node dest/back/index.js",
-    "buildbacksrc": "tsc -p tsconfig.back.json"
+    "buildbacksrc": "tsc -p tsconfig.back.json",
+    "build": "npm-run-all -p buildback buildbro",
+    "watch": "npm-run-all -p watchback watchbro",
+    "open": "start http://localhost:8330",
+    "serveropen": "npm-run-all -p server open",
+    "startbuild": "npm-run-all build serveropen"
   }
 }
