@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "sourceMap": true,
+    "outDir": "dest",
+    "rootDir": "src",
+    "target": "es6",
+    "lib": ["es6","dom"],
+    "jsx": "react",
+    "downlevelIteration": true,
+    "baseUrl": ".",
+    "paths": {
+      "*": [
+        "node_modules/*"
+      ]
+    },
+    "esModuleInterop": true,
+    "resolveJsonModule": true
+  },
+  "exclude": ["node_modules", "src/front", "src/mid"]
+}

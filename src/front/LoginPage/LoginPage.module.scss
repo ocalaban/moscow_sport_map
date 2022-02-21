@@ -1,0 +1,186 @@
+body {
+  margin: 0;
+  padding: 0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.loginPage {
+  height: 100vh;
+  width: 100%;
+}
+
+.text {
+  font-style: normal;
+  font-weight: 300;
+  line-height: 18px;
+  height: 194px;
+}
+
+.loginPage h1 {
+  font-size: 200px;
+  color: #9FD46E;
+}
+
+.text span:last-of-type {
+  color: #FEFEFE;
+}
+
+.btn button {
+  font-family: inherit;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 30px;
+  line-height: 18px;
+  margin-left: 12px;
+  width: 239px;
+  height: 60px;
+  background-color: white;
+  color: #9FD46E;
+  border: 4px solid #9FD46E;
+  border-radius: 8px;
+  transition: color, background-color 0.6s;
+}
+
+.content {
+  position: fixed;
+  top: 50%;
+  left: 26%;
+}
+
+.btn button:hover {
+  color: white;
+  background-color: #9FD46E;
+}
+
+.img {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  right: 0;
+  z-index: -1;
+}
+
+.img img {
+  position: fixed;
+}
+
+.human {
+  z-index: 1;
+  right: 8%;
+  bottom: 10%;
+}
+
+/* .mix {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+} */
+
+.vectorWrapper {
+  width: 900px;
+}
+
+.vector {
+  bottom: 0;
+  right: 12%;
+  width: 900px;
+  max-width: 100%;
+  animation: 1s linear 0s infinite alternate vector;
+}
+
+.vector2Wrapper {
+  position: fixed;
+}
+
+.vector2 {
+  top: 0;
+  right: 0;
+  max-width: 100%;
+  width: 700px;
+  animation: 1s linear 0s infinite alternate vector2;
+}
+
+.human {
+  animation: 1s linear 0s infinite alternate up-down;
+}
+
+@keyframes vector {
+  0% {
+    transform: translateY(0);
+  }
+
+  100% {
+    transform: translateY(10px);
+  }
+}
+
+@keyframes vector2 {
+  0% {
+    transform: translateY(0);
+  }
+
+  100% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes up-down {
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(10px);
+  }
+}
+
+@media screen and (max-width: 1700px) {
+  h1 span{
+    color: white;
+  }
+
+  .content {
+    top: 50%;
+    left: 50%;
+    text-align: center;
+    transform: translate(-50%, -50%);
+  }
+
+  .loginPage h1 {
+    font-size: 100px;
+  }
+
+  .text {
+    height: 100px;
+  }
+
+  .btn button {
+    margin-left: 0;
+  }
+}
+
+@media screen and (max-width: 441px) {
+  .loginPage h1 {
+    font-size: 50px;
+  }
+
+  .btn button {
+    font-size: 20px;
+    width: 100px;
+    height: 40px;
+  }
+
+  .text {
+    height: 60px;
+    
+  }
+}
+
